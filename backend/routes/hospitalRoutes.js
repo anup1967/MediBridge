@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const upload = require("../middleware/upload");
 const {
   getHospitals,
   getHospital,
@@ -17,7 +17,13 @@ router.get("/", getHospitals);
 router.get("/:id", getHospital);
 
 // Admin
-router.post("/", protect, adminOnly, createHospital);
+router.post(
+  "/",
+  protect,
+  adminOnly,
+  upload.single("image"),
+  createHospital
+);
 router.put("/:id", protect, adminOnly, updateHospital);
 router.delete("/:id", protect, adminOnly, deleteHospital);
 router.patch("/:id/resources", protect, adminOnly, updateResources);

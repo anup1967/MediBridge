@@ -17,7 +17,7 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
-
+app.use("/hospitals", express.static("uploads/hospitals"));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/hospitals", hospitalRoutes);

@@ -1,9 +1,28 @@
 import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Search, Filter } from "lucide-react";
+
 import Navbar from "../components/Navbar";
 import HospitalCard from "../components/home/HospitalCard";
 import HospitalMap from "../components/home/HospitalMap";
 import useHospitalData from "../hooks/useHospitalData";
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const toRad = (value) => (value * Math.PI) / 180;
+
+  const R = 6371;
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) ** 2;
+
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 export default function Hospitals() {
   const {
@@ -11,6 +30,17 @@ export default function Hospitals() {
     loading,
     error,
   } = useHospitalData();
+
+  const location = useLocation();
+
+  const params = new URLSearchParams(location.search);
+
+  const userLat = Number(params.get("lat"));
+  const userLng = Number(params.get("lng"));
+
+  const hasLocation =
+    !Number.isNaN(userLat) &&
+    !Number.isNaN(userLng);
 
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("All");
@@ -23,42 +53,67 @@ export default function Hospitals() {
     oxygen: false,
     ventilator: false,
   });
-    const cities = [
+
+  const cities = [
     "All",
     ...new Set(hospitals.map((hospital) => hospital.city)),
   ];
 
   const filteredHospitals = useMemo(() => {
-    let data = [...hospitals];
+    let data = hospitals.map((hospital) => {
+      let distance = null;
+
+      if (
+        hasLocation &&
+        hospital.coordinates
+      ) {
+        distance = calculateDistance(
+          userLat,
+          userLng,
+          hospital.coordinates.lat,
+          hospital.coordinates.lng
+        );
+      }
+
+      return {
+        ...hospital,
+        distance,
+      };
+    });
 
     data = data.filter((hospital) => {
       const query = search.toLowerCase();
 
       const matchesSearch =
-        (hospital.name || "")
-          .toLowerCase()
+        hospital.name
+          ?.toLowerCase()
           .includes(query) ||
-        (hospital.city || "")
-          .toLowerCase()
+        hospital.city
+          ?.toLowerCase()
           .includes(query) ||
-        hospital.departments?.some((department) =>
-          department.toLowerCase().includes(query)
+        hospital.departments?.some((d) =>
+          d.toLowerCase().includes(query)
         );
 
       const matchesCity =
-        city === "All" || hospital.city === city;
+        city === "All" ||
+        hospital.city === city;
 
       const matchesEmergency =
-        !filters.emergency || hospital.emergency;
+        !filters.emergency ||
+        hospital.emergency;
 
       const matchesAmbulance =
-        !filters.ambulance || hospital.ambulance;
+        !filters.ambulance ||
+        hospital.ambulance;
 
       const matchesICU =
-        !filters.icu || hospital.beds > 0;
+        !filters.icu ||
+        hospital.beds > 0;
 
       const matchesOxygen =
-        !filters.oxygen || hospital.oxygen > 0;
+        !filters.oxygen ||
+        hospital.oxygen > 0;
 
       const matchesVentilator =
         !filters.ventilator ||
@@ -75,31 +130,50 @@ export default function Hospitals() {
       );
     });
 
-    switch (sortBy) {
-      case "rating":
-        data.sort((a, b) => b.rating - a.rating);
-        break;
+    if (hasLocation) {
+      data.sort((a, b) => {
+        if (a.distance == null) return 1;
+        if (b.distance == null) return -1;
 
-      case "beds":
-        data.sort((a, b) => b.beds - a.beds);
-        break;
+        return a.distance - b.distance;
+      });
+    } else {
+      switch (sortBy) {
+        case "rating":
+          data.sort((a, b) => b.rating - a.rating);
+          break;
 
-      case "waiting":
-        data.sort(
-          (a, b) => a.waitingTime - b.waitingTime
-        );
-        break;
+        case "beds":
+          data.sort((a, b) => b.beds - a.beds);
+          break;
 
-      case "oxygen":
-        data.sort((a, b) => b.oxygen - a.oxygen);
-        break;
+        case "oxygen":
+          data.sort((a, b) => b.oxygen - a.oxygen);
+          break;
 
-      default:
-        break;
+        case "waiting":
+          data.sort(
+            (a, b) =>
+              a.waitingTime - b.waitingTime
+          );
+          break;
+
+        default:
+          break;
+      }
     }
 
     return data;
-  }, [search, city, filters, sortBy, hospitals]);
+  }, [
+    hospitals,
+    search,
+    city,
+    sortBy,
+    filters,
+    hasLocation,
+    userLat,
+    userLng,
+  ]);
 
   const toggleFilter = (key) => {
     setFilters((prev) => ({
@@ -107,8 +181,7 @@ export default function Hospitals() {
       [key]: !prev[key],
     }));
   };
-
-  if (loading) {
+    if (loading) {
     return (
       <>
         <Navbar />
@@ -131,7 +204,7 @@ export default function Hospitals() {
   }
 
   return (
-        <>
+    <>
       <Navbar />
 
       <div className="min-h-screen bg-slate-100">
@@ -139,6 +212,12 @@ export default function Hospitals() {
           <h1 className="mb-8 text-4xl font-bold">
             Find Nearby Hospitals
           </h1>
+
+          {hasLocation && (
+            <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-blue-700">
+              📍 Showing hospitals nearest to your current location.
+            </div>
+          )}
 
           <div className="mb-8 rounded-2xl bg-white p-5 shadow">
             <div className="relative">
@@ -219,36 +298,24 @@ export default function Hospitals() {
                 className="rounded-xl border bg-white px-4 py-3"
               >
                 {cities.map((cityName) => (
-                  <option
-                    key={cityName}
-                    value={cityName}
-                  >
+                  <option key={cityName} value={cityName}>
                     {cityName}
                   </option>
                 ))}
               </select>
 
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="rounded-xl border bg-white px-4 py-3"
-              >
-                <option value="rating">
-                  Highest Rating
-                </option>
-
-                <option value="beds">
-                  ICU Beds
-                </option>
-
-                <option value="oxygen">
-                  Oxygen
-                </option>
-
-                <option value="waiting">
-                  Waiting Time
-                </option>
-              </select>
+              {!hasLocation && (
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="rounded-xl border bg-white px-4 py-3"
+                >
+                  <option value="rating">Highest Rating</option>
+                  <option value="beds">ICU Beds</option>
+                  <option value="oxygen">Oxygen</option>
+                  <option value="waiting">Waiting Time</option>
+                </select>
+              )}
             </div>
           </div>
 
@@ -283,13 +350,11 @@ export default function Hospitals() {
             </div>
 
             <div className="xl:col-span-3">
-              <HospitalMap
-                hospitals={filteredHospitals}
-              />
+              <HospitalMap hospitals={filteredHospitals} />
             </div>
           </div>
         </div>
       </div>
-          </>
+    </>
   );
 }

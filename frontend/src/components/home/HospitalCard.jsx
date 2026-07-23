@@ -27,6 +27,8 @@ export default function HospitalCard({ hospital }) {
     ambulance,
     waitingTime,
     phone,
+    coordinates,
+    distance,
   } = hospital;
 
   const getColor = (value) => {
@@ -39,7 +41,6 @@ export default function HospitalCard({ hospital }) {
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
 
       <Link to={`/hospital/${_id}`}>
-
         <div className="relative">
           <img
             src={image || "/hero.png"}
@@ -58,6 +59,12 @@ export default function HospitalCard({ hospital }) {
               <MapPin size={15} />
               <span>{city}</span>
             </div>
+
+            {distance != null && (
+              <div className="mt-2 inline-flex items-center rounded-full bg-blue-600/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                📍 {distance.toFixed(1)} km away
+              </div>
+            )}
           </div>
 
           <div className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 shadow">
@@ -66,16 +73,16 @@ export default function HospitalCard({ hospital }) {
                 size={16}
                 className="fill-yellow-400 text-yellow-400"
               />
-              <span className="font-semibold">{rating}</span>
+              <span className="font-semibold">
+                {rating}
+              </span>
             </div>
 
             <p className="text-center text-[10px] text-gray-500">
               {reviewCount} reviews
             </p>
           </div>
-
         </div>
-
       </Link>
 
       <div className="p-5">
@@ -88,7 +95,11 @@ export default function HospitalCard({ hospital }) {
               ICU Beds
             </div>
 
-            <div className={`mt-2 text-2xl font-bold ${getColor(Number(beds) || 0)}`}>
+            <div
+              className={`mt-2 text-2xl font-bold ${getColor(
+                Number(beds) || 0
+              )}`}
+            >
               {beds}
             </div>
           </div>
@@ -99,7 +110,11 @@ export default function HospitalCard({ hospital }) {
               Oxygen
             </div>
 
-            <div className={`mt-2 text-2xl font-bold ${getColor(Number(oxygen) || 0)}`}>
+            <div
+              className={`mt-2 text-2xl font-bold ${getColor(
+                Number(oxygen) || 0
+              )}`}
+            >
               {oxygen}
             </div>
           </div>
@@ -110,7 +125,11 @@ export default function HospitalCard({ hospital }) {
               Ventilators
             </div>
 
-            <div className={`mt-2 text-2xl font-bold ${getColor(Number(ventilators) || 0)}`}>
+            <div
+              className={`mt-2 text-2xl font-bold ${getColor(
+                Number(ventilators) || 0
+              )}`}
+            >
               {ventilators}
             </div>
           </div>
@@ -137,7 +156,9 @@ export default function HospitalCard({ hospital }) {
                 : "bg-gray-200 text-gray-600"
             }`}
           >
-            {emergency ? "🚑 Emergency Available" : "Emergency Busy"}
+            {emergency
+              ? "🚑 Emergency Available"
+              : "Emergency Busy"}
           </span>
 
           <span
@@ -147,13 +168,25 @@ export default function HospitalCard({ hospital }) {
                 : "bg-yellow-100 text-yellow-700"
             }`}
           >
-            {ambulance ? "🚓 Ambulance Available" : "Ambulance Busy"}
+            {ambulance
+              ? "🚓 Ambulance Available"
+              : "Ambulance Busy"}
           </span>
 
         </div>
 
+        {distance != null && (
+          <div className="mb-4 rounded-xl bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700">
+            📍 Approximately {distance.toFixed(1)} km from your current
+            location
+          </div>
+        )}
+
         <div className="mb-5 flex items-start gap-2 text-sm text-gray-600">
-          <MapPin size={16} className="mt-0.5 text-blue-600" />
+          <MapPin
+            size={16}
+            className="mt-0.5 text-blue-600"
+          />
           <span>{address}</span>
         </div>
 
@@ -163,14 +196,21 @@ export default function HospitalCard({ hospital }) {
             href={`tel:${phone}`}
             className="flex-1 rounded-xl bg-emerald-600 py-3 text-center font-semibold text-white transition hover:bg-emerald-700"
           >
-            <Phone className="mr-2 inline" size={18} />
+            <Phone
+              className="mr-2 inline"
+              size={18}
+            />
             Call
           </a>
 
           <a
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-              address
-            )}`}
+            href={
+              coordinates
+                ? `https://www.google.com/maps/dir/?api=1&destination=${coordinates.lat},${coordinates.lng}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    address
+                  )}`
+            }
             target="_blank"
             rel="noreferrer"
             className="flex-1 rounded-xl border border-slate-300 py-3 text-center font-semibold transition hover:bg-slate-100"

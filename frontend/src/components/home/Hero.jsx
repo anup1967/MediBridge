@@ -21,33 +21,48 @@ function Hero() {
       navigate("/hospitals");
       return;
     }
-const handleCurrentLocation = () => {
-  if (!navigator.geolocation) {
-    alert("Geolocation is not supported by your browser");
-    return;
-  }
 
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-
-      console.log("Current Location:", lat, lng);
-
-      navigate(`/hospitals?lat=${lat}&lng=${lng}`);
-    },
-    (error) => {
-      console.log("Location error:", error);
-
-      if (error.code === 1) {
-        alert("Please allow location permission.");
-      } else {
-        alert("Unable to get your location.");
-      }
-    }
-  );
-};
     navigate(`/hospitals?search=${encodeURIComponent(query)}`);
+  };
+
+  const handleCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        console.log("Current Location:", lat, lng);
+
+        navigate(`/hospitals?lat=${lat}&lng=${lng}`);
+      },
+      (error) => {
+        console.error("Location Error:", error);
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("Please allow location access.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            alert("Location request timed out.");
+            break;
+          default:
+            alert("Unable to retrieve your location.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
 
   return (
@@ -75,7 +90,6 @@ const handleCurrentLocation = () => {
           </p>
 
           {/* Search */}
-
           <div className="mt-10 flex overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
             <div className="flex flex-1 items-center gap-3 px-5">
               <Search className="text-slate-400" size={20} />
@@ -102,16 +116,19 @@ const handleCurrentLocation = () => {
             </button>
           </div>
 
+          {/* Current Location */}
 <button
-  onClick={handleCurrentLocation}
-  className="mt-5 flex items-center gap-2 font-semibold text-blue-600 hover:text-blue-700"
+  onClick={() => {
+    console.log("Location button clicked");
+    alert("Location button clicked");
+    handleCurrentLocation();
+  }}
+  className="mt-5 flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 font-semibold text-blue-600"
 >
   <MapPin size={18} />
   Use Current Location
 </button>
-
-          {/* Pills */}
-
+          {/* Feature Pills */}
           <div className="mt-10 flex flex-wrap gap-4">
             <div className="flex items-center gap-2 rounded-full bg-white px-5 py-3 shadow-sm">
               <BedDouble className="text-blue-600" size={18} />
@@ -131,7 +148,6 @@ const handleCurrentLocation = () => {
         </div>
 
         {/* RIGHT */}
-
         <div className="flex w-full justify-center lg:w-1/2">
           <img
             src={heroIllustration}
