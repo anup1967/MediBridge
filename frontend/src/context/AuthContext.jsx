@@ -27,21 +27,38 @@ export function AuthProvider({ children }) {
       password,
     });
 
+    // Backend returns the user fields directly
+    const loggedInUser = {
+      _id: data._id,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+    };
+
     localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem(
+      "user",
+      JSON.stringify(loggedInUser)
+    );
 
-    api.defaults.headers.common.Authorization =
-      `Bearer ${data.token}`;
+    api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
 
-    setUser(data.user);
+    setUser(loggedInUser);
 
-    return data.user;
+    return loggedInUser;
   };
 
   const register = async (formData) => {
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role,
+    };
+
     const { data } = await api.post(
       "/auth/register",
-      formData
+      payload
     );
 
     return data;
@@ -59,11 +76,14 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
-      loading: false,
       login,
       register,
       logout,
+      loading: false,
       isAuthenticated: !!user,
+      isUser: user?.role === "user",
+      isHospital: user?.role === "hospital",
+      isAdmin: user?.role === "admin",
     }),
     [user]
   );
