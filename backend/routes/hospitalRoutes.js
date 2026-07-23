@@ -1,22 +1,28 @@
-const express = require("express");
-const router = express.Router();
-const upload = require("../middleware/upload");
-const {
+import express from "express";
+
+import upload from "../middleware/upload.js";
+
+import {
   getHospitals,
   getHospital,
   createHospital,
   updateHospital,
   deleteHospital,
   updateResources,
-} = require("../controllers/hospitalController");
+} from "../controllers/hospitalController.js";
 
-const { protect, adminOnly } = require("../middleware/authMiddleware");
+import {
+  protect,
+  adminOnly,
+} from "../middleware/authMiddleware.js";
 
-// Public
+const router = express.Router();
+
+// Public Routes
 router.get("/", getHospitals);
 router.get("/:id", getHospital);
 
-// Admin
+// Admin Routes
 router.post(
   "/",
   protect,
@@ -24,8 +30,26 @@ router.post(
   upload.single("image"),
   createHospital
 );
-router.put("/:id", protect, adminOnly, updateHospital);
-router.delete("/:id", protect, adminOnly, deleteHospital);
-router.patch("/:id/resources", protect, adminOnly, updateResources);
 
-module.exports = router;
+router.put(
+  "/:id",
+  protect,
+  adminOnly,
+  updateHospital
+);
+
+router.delete(
+  "/:id",
+  protect,
+  adminOnly,
+  deleteHospital
+);
+
+router.patch(
+  "/:id/resources",
+  protect,
+  adminOnly,
+  updateResources
+);
+
+export default router;

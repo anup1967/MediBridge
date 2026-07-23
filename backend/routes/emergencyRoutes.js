@@ -1,12 +1,12 @@
-const express = require("express");
+import express from "express";
 
-const router = express.Router();
-
-const {
+import {
   createEmergency,
   getAllRequests,
   updateStatus,
-} = require("../controllers/emergencyController");
+} from "../controllers/emergencyController.js";
+
+const router = express.Router();
 
 // Create a new emergency request
 router.post("/", createEmergency);
@@ -17,4 +17,4 @@ router.get("/", getAllRequests);
 // Update request status
 router.put("/:id", updateStatus);
 
-module.exports = router;
+export default router;

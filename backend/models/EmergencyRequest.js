@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const emergencyRequestSchema = new mongoose.Schema(
   {
@@ -20,9 +20,15 @@ const emergencyRequestSchema = new mongoose.Schema(
       trim: true,
     },
 
-    condition: {
+    emergencyType: {
       type: String,
       required: true,
+      trim: true,
+    },
+
+    message: {
+      type: String,
+      default: "",
       trim: true,
     },
 
@@ -42,7 +48,7 @@ const emergencyRequestSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model(
+export default mongoose.model(
   "EmergencyRequest",
   emergencyRequestSchema
 );

@@ -1,7 +1,8 @@
-const Hospital = require("../models/Hospital");
-const cloudinary = require("../config/cloudinary");
+import Hospital from "../models/Hospital.js";
+import cloudinary from "../config/cloudinary.js";
+
 // Get all hospitals
-exports.getHospitals = async (req, res) => {
+export const getHospitals = async (req, res) => {
   try {
     const {
       city,
@@ -49,7 +50,7 @@ exports.getHospitals = async (req, res) => {
 };
 
 // Get one hospital
-exports.getHospital = async (req, res) => {
+export const getHospital = async (req, res) => {
   try {
     const hospital = await Hospital.findById(req.params.id);
 
@@ -73,13 +74,11 @@ exports.getHospital = async (req, res) => {
 };
 
 // Create hospital
-exports.createHospital = async (req, res) => {
+export const createHospital = async (req, res) => {
   try {
-
     let imageUrl = "";
 
     if (req.file) {
-
       const result = await cloudinary.uploader.upload(
         `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
         {
@@ -90,32 +89,26 @@ exports.createHospital = async (req, res) => {
       imageUrl = result.secure_url;
     }
 
-
     const hospital = await Hospital.create({
       ...req.body,
       image: imageUrl,
     });
-
 
     res.status(201).json({
       success: true,
       message: "Hospital created successfully.",
       data: hospital,
     });
-
-
   } catch (err) {
-
     res.status(500).json({
-      success:false,
-      message:err.message,
+      success: false,
+      message: err.message,
     });
-
   }
 };
 
 // Update hospital
-exports.updateHospital = async (req, res) => {
+export const updateHospital = async (req, res) => {
   try {
     const hospital = await Hospital.findByIdAndUpdate(
       req.params.id,
@@ -149,7 +142,7 @@ exports.updateHospital = async (req, res) => {
 };
 
 // Delete hospital
-exports.deleteHospital = async (req, res) => {
+export const deleteHospital = async (req, res) => {
   try {
     const hospital = await Hospital.findByIdAndDelete(req.params.id);
 
@@ -173,7 +166,7 @@ exports.deleteHospital = async (req, res) => {
 };
 
 // Update live resources
-exports.updateResources = async (req, res) => {
+export const updateResources = async (req, res) => {
   try {
     const hospital = await Hospital.findById(req.params.id);
 

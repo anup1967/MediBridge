@@ -1,8 +1,8 @@
-const EmergencyRequest = require("../models/EmergencyRequest");
-const Hospital = require("../models/Hospital");
+import EmergencyRequest from "../models/EmergencyRequest.js";
+import Hospital from "../models/Hospital.js";
 
 // Create Emergency Request
-exports.createEmergency = async (req, res) => {
+export const createEmergency = async (req, res) => {
   try {
     const {
       patientName,
@@ -45,6 +45,7 @@ exports.createEmergency = async (req, res) => {
       message: "Emergency request submitted successfully.",
       data: populated,
     });
+
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -54,7 +55,7 @@ exports.createEmergency = async (req, res) => {
 };
 
 // Get All Requests
-exports.getAllRequests = async (req, res) => {
+export const getAllRequests = async (req, res) => {
   try {
     const requests = await EmergencyRequest.find()
       .populate("hospitalId")
@@ -65,6 +66,7 @@ exports.getAllRequests = async (req, res) => {
       count: requests.length,
       data: requests,
     });
+
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -74,11 +76,16 @@ exports.getAllRequests = async (req, res) => {
 };
 
 // Update Request Status
-exports.updateStatus = async (req, res) => {
+export const updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-    const allowed = ["Pending", "Accepted", "Rejected", "Completed"];
+    const allowed = [
+      "Pending",
+      "Accepted",
+      "Rejected",
+      "Completed",
+    ];
 
     if (!allowed.includes(status)) {
       return res.status(400).json({
@@ -105,6 +112,7 @@ exports.updateStatus = async (req, res) => {
       message: "Status updated successfully.",
       data: request,
     });
+
   } catch (err) {
     res.status(500).json({
       success: false,

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const hospitalSchema = new mongoose.Schema(
   {
@@ -28,18 +28,18 @@ const hospitalSchema = new mongoose.Schema(
       required: true,
     },
 
-email: {
-  type: String,
-  default: "",
-  lowercase: true,
-  trim: true,
-},
+    email: {
+      type: String,
+      default: "",
+      lowercase: true,
+      trim: true,
+    },
 
-website: {
-  type: String,
-  default: "",
-  trim: true,
-},
+    website: {
+      type: String,
+      default: "",
+      trim: true,
+    },
 
     image: {
       type: String,
@@ -123,4 +123,4 @@ website: {
   }
 );
 
-module.exports = mongoose.model("Hospital", hospitalSchema);
+export default mongoose.model("Hospital", hospitalSchema);

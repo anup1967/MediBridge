@@ -1,23 +1,25 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+import connectDB from "./config/db.js";
+
+import authRoutes from "./routes/authRoutes.js";
+import hospitalRoutes from "./routes/hospitalRoutes.js";
+import emergencyRoutes from "./routes/emergencyRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
-const connectDB = require("./config/db");
-
-const authRoutes = require("./routes/authRoutes");
-const hospitalRoutes = require("./routes/hospitalRoutes");
-const emergencyRoutes = require("./routes/emergencyRoutes");
-const userRoutes = require("./routes/userRoutes");
-
 const app = express();
-console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
+
 connectDB();
 
 app.use(cors());
 app.use(express.json());
+
 app.use("/hospitals", express.static("uploads/hospitals"));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/hospitals", hospitalRoutes);
