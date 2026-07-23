@@ -11,12 +11,6 @@ const hospitalRoutes = require("./routes/hospitalRoutes");
 const emergencyRoutes = require("./routes/emergencyRoutes");
 const userRoutes = require("./routes/userRoutes");
 
-// 👇 ADD THESE 4 LINES HERE
-console.log("authRoutes =", authRoutes);
-console.log("userRoutes =", userRoutes);
-console.log("hospitalRoutes =", hospitalRoutes);
-console.log("emergencyRoutes =", emergencyRoutes);
-
 const app = express();
 console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 connectDB();
