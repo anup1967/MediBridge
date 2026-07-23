@@ -18,7 +18,7 @@ console.log("hospitalRoutes =", hospitalRoutes);
 console.log("emergencyRoutes =", emergencyRoutes);
 
 const app = express();
-
+console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 connectDB();
 
 app.use(cors());
