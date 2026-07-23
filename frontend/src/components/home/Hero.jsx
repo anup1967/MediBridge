@@ -25,45 +25,44 @@ function Hero() {
     navigate(`/hospitals?search=${encodeURIComponent(query)}`);
   };
 
-  const handleCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
+const handleCurrentLocation = () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
 
-        console.log("Current Location:", lat, lng);
+      navigate(`/hospitals?lat=${lat}&lng=${lng}`);
+    },
+    (error) => {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          alert("Please allow location access.");
+          break;
 
-        navigate(`/hospitals?lat=${lat}&lng=${lng}`);
-      },
-      (error) => {
-        console.error("Location Error:", error);
+        case error.POSITION_UNAVAILABLE:
+          alert("Location information is unavailable.");
+          break;
 
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            alert("Please allow location access.");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            alert("Location information is unavailable.");
-            break;
-          case error.TIMEOUT:
-            alert("Location request timed out.");
-            break;
-          default:
-            alert("Unable to retrieve your location.");
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        case error.TIMEOUT:
+          alert("Location request timed out.");
+          break;
+
+        default:
+          alert("Unable to retrieve your location.");
       }
-    );
-  };
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    }
+  );
+};
 
   return (
     <section className="min-h-[90vh] bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -118,12 +117,8 @@ function Hero() {
 
           {/* Current Location */}
 <button
-  onClick={() => {
-    console.log("Location button clicked");
-    alert("Location button clicked");
-    handleCurrentLocation();
-  }}
-  className="mt-5 flex items-center gap-2 rounded-lg bg-blue-100 px-4 py-2 font-semibold text-blue-600"
+  onClick={handleCurrentLocation}
+  className="mt-5 flex items-center gap-2 font-semibold text-blue-600 transition hover:text-blue-700"
 >
   <MapPin size={18} />
   Use Current Location
