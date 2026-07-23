@@ -7,7 +7,7 @@ import HospitalDetails from "../pages/HospitalDetails";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
-
+import About from "../pages/About";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 function AppRoutes() {
@@ -24,6 +24,9 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
+
+      <Route path="/about" element={<About />} />
+      
 <Route
   path="/admin"
   element={

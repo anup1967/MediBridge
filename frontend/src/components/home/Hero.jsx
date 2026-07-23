@@ -21,7 +21,32 @@ function Hero() {
       navigate("/hospitals");
       return;
     }
+const handleCurrentLocation = () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser");
+    return;
+  }
 
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      console.log("Current Location:", lat, lng);
+
+      navigate(`/hospitals?lat=${lat}&lng=${lng}`);
+    },
+    (error) => {
+      console.log("Location error:", error);
+
+      if (error.code === 1) {
+        alert("Please allow location permission.");
+      } else {
+        alert("Unable to get your location.");
+      }
+    }
+  );
+};
     navigate(`/hospitals?search=${encodeURIComponent(query)}`);
   };
 
@@ -77,10 +102,13 @@ function Hero() {
             </button>
           </div>
 
-          <button className="mt-5 flex items-center gap-2 font-semibold text-blue-600 hover:text-blue-700">
-            <MapPin size={18} />
-            Use Current Location
-          </button>
+<button
+  onClick={handleCurrentLocation}
+  className="mt-5 flex items-center gap-2 font-semibold text-blue-600 hover:text-blue-700"
+>
+  <MapPin size={18} />
+  Use Current Location
+</button>
 
           {/* Pills */}
 

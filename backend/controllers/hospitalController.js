@@ -1,5 +1,5 @@
 const Hospital = require("../models/Hospital");
-
+const cloudinary = require("../config/cloudinary");
 // Get all hospitals
 exports.getHospitals = async (req, res) => {
   try {
@@ -75,18 +75,42 @@ exports.getHospital = async (req, res) => {
 // Create hospital
 exports.createHospital = async (req, res) => {
   try {
-    const hospital = await Hospital.create(req.body);
+
+    let imageUrl = "";
+
+    if (req.file) {
+
+      const result = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+        {
+          folder: "medibridge/hospitals",
+        }
+      );
+
+      imageUrl = result.secure_url;
+    }
+
+
+    const hospital = await Hospital.create({
+      ...req.body,
+      image: imageUrl,
+    });
+
 
     res.status(201).json({
       success: true,
       message: "Hospital created successfully.",
       data: hospital,
     });
+
+
   } catch (err) {
+
     res.status(500).json({
-      success: false,
-      message: err.message,
+      success:false,
+      message:err.message,
     });
+
   }
 };
 
