@@ -1,24 +1,32 @@
 import {
   createContext,
-  useContext,
+  useCallback,
   useMemo,
   useState,
 } from "react";
 import api from "../api/api";
 
-const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
 
-    if (savedUser && token) {
-      api.defaults.headers.common.Authorization = `Bearer ${token}`;
-      return JSON.parse(savedUser);
+    if (!token || !savedUser) {
+      return null;
     }
 
-    return null;
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    try {
+      return JSON.parse(savedUser);
+    } catch {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      delete api.defaults.headers.common.Authorization;
+      return null;
+    }
   });
 
   const login = async (email, password) => {
@@ -27,7 +35,6 @@ export function AuthProvider({ children }) {
       password,
     });
 
-    // Backend returns the user fields directly
     const loggedInUser = {
       _id: data._id,
       name: data.name,
@@ -56,10 +63,7 @@ export function AuthProvider({ children }) {
       role: formData.role,
     };
 
-    const { data } = await api.post(
-      "/auth/register",
-      payload
-    );
+    const { data } = await api.post("/auth/register", payload);
 
     return data;
   };
@@ -73,19 +77,48 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateUser = useCallback((updates) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+
+      const updatedUser = {
+        ...prev,
+        ...updates,
+      };
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(updatedUser)
+      );
+
+      return updatedUser;
+    });
+  }, []);
+
+  const hasRole = useCallback(
+    (role) => user?.role === role,
+    [user]
+  );
+
   const value = useMemo(
     () => ({
       user,
+
       login,
       register,
       logout,
+      updateUser,
+
       loading: false,
+
       isAuthenticated: !!user,
-      isUser: user?.role === "user",
-      isHospital: user?.role === "hospital",
-      isAdmin: user?.role === "admin",
+      isUser: hasRole("user"),
+      isHospital: hasRole("hospital"),
+      isAdmin: hasRole("admin"),
+
+      hasRole,
     }),
-    [user]
+    [user, updateUser, hasRole]
   );
 
   return (
@@ -93,8 +126,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

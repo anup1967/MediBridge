@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 import {
   User,
   Building2,
   ShieldCheck,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();

@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 
 import Navbar from "../components/Navbar";
+import ReviewList from "../components/ReviewList";
+import RatingStars from "../components/RatingStars";
 import useHospitalData from "../hooks/useHospitalData";
 
 export default function HospitalDetails() {
@@ -48,19 +50,10 @@ export default function HospitalDetails() {
     );
   }
 
-const hospital = hospitals.find(
-  (h) => String(h._id) === String(id)
-);
-{hospital.website && (
-  <a
-    href={hospital.website}
-    target="_blank"
-    rel="noreferrer"
-    className="mb-4 block rounded-xl bg-slate-700 py-4 text-center font-semibold text-white transition hover:bg-slate-800"
-  >
-    Visit Website
-  </a>
-)}
+  const hospital = hospitals.find(
+    (h) => String(h._id) === String(id)
+  );
+
   if (!hospital) {
     return (
       <>
@@ -86,11 +79,11 @@ const hospital = hospitals.find(
 
       <div className="min-h-screen bg-slate-100">
 
+        {/* Hero */}
         <div className="bg-gradient-to-r from-blue-700 to-cyan-600 text-white">
-
           <div className="mx-auto max-w-7xl px-6 py-16">
 
-            <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-6">
 
               <div>
 
@@ -100,9 +93,41 @@ const hospital = hospitals.find(
 
                 <div className="mt-4 flex items-center gap-2">
                   <MapPin size={20} />
+
                   <span>
-                    {hospital.address}, {hospital.city}, {hospital.state}
+                    {hospital.address},
+                    {" "}
+                    {hospital.city},
+                    {" "}
+                    {hospital.state}
                   </span>
+                </div>
+
+                {/* Rating */}
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+
+                  <RatingStars
+                    rating={hospital.rating || 0}
+                    size={22}
+                  />
+
+                  <span className="text-lg font-semibold">
+                    {(hospital.rating || 0).toFixed(1)}
+                  </span>
+
+                  <button
+                    onClick={() =>
+                      document
+                        .getElementById("reviews")
+                        ?.scrollIntoView({
+                          behavior: "smooth",
+                        })
+                    }
+                    className="underline underline-offset-4 transition hover:text-blue-100"
+                  >
+                    ({hospital.reviewCount || 0} Reviews)
+                  </button>
+
                 </div>
 
               </div>
@@ -126,15 +151,16 @@ const hospital = hospitals.find(
             </div>
 
           </div>
-
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-10">
 
           <div className="grid gap-8 lg:grid-cols-3">
 
+            {/* Left Column */}
             <div className="space-y-6 lg:col-span-2">
 
+              {/* Contact Information */}
               <div className="rounded-2xl bg-white p-6 shadow">
 
                 <h2 className="mb-5 text-2xl font-bold">
@@ -160,16 +186,20 @@ const hospital = hospitals.find(
 
                   <div className="flex items-center gap-3">
                     <Clock />
-                    Last Updated :
-                    {" "}
+
+                    Last Updated:
+
                     {hospital.updatedAt
-                      ? new Date(hospital.updatedAt).toLocaleString()
+                      ? new Date(
+                          hospital.updatedAt
+                        ).toLocaleString()
                       : "Not Available"}
                   </div>
 
                 </div>
 
               </div>
+                            {/* Live Resource Availability */}
               <div className="rounded-2xl bg-white p-6 shadow">
 
                 <h2 className="mb-6 text-2xl font-bold">
@@ -178,6 +208,7 @@ const hospital = hospitals.find(
 
                 <div className="space-y-6">
 
+                  {/* Beds */}
                   <div>
 
                     <div className="flex justify-between">
@@ -213,6 +244,7 @@ const hospital = hospitals.find(
 
                   </div>
 
+                  {/* Oxygen */}
                   <div>
 
                     <div className="flex justify-between">
@@ -248,6 +280,7 @@ const hospital = hospitals.find(
 
                   </div>
 
+                  {/* Ventilators */}
                   <div>
 
                     <div className="flex justify-between">
@@ -283,6 +316,7 @@ const hospital = hospitals.find(
 
                   </div>
 
+                  {/* Ambulance */}
                   <div>
 
                     <div className="flex justify-between">
@@ -308,6 +342,7 @@ const hospital = hospitals.find(
 
                   </div>
 
+                  {/* Waiting Time */}
                   <div>
 
                     <div className="flex justify-between">
@@ -326,9 +361,55 @@ const hospital = hospitals.find(
 
               </div>
 
-            </div>
-                        <div className="space-y-6">
+              {/* Community Reviews */}
+              <section
+                id="reviews"
+                className="rounded-2xl bg-white p-6 shadow"
+              >
 
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+
+                  <div>
+
+                    <h2 className="text-2xl font-bold">
+                      Community Reviews
+                    </h2>
+
+                    <p className="text-sm text-gray-500">
+                      Read experiences shared by patients and write your own review.
+                    </p>
+
+                  </div>
+
+                  <div className="text-right">
+
+                    <RatingStars
+                      rating={hospital.rating || 0}
+                      size={18}
+                    />
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      {(hospital.rating || 0).toFixed(1)}
+                      {" "}
+                      •
+                      {" "}
+                      {hospital.reviewCount || 0} Reviews
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <ReviewList hospitalId={hospital._id} />
+
+              </section>
+
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="space-y-6">
+
+              {/* Quick Actions */}
               <div className="rounded-2xl bg-white p-6 shadow">
 
                 <h2 className="mb-5 text-xl font-bold">
@@ -341,6 +422,17 @@ const hospital = hospitals.find(
                 >
                   Call Hospital
                 </a>
+
+                {hospital.website && (
+                  <a
+                    href={hospital.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mb-4 block rounded-xl bg-slate-700 py-4 text-center font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    Visit Website
+                  </a>
+                )}
 
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -355,16 +447,16 @@ const hospital = hospitals.find(
 
               </div>
 
+              {/* Hospital Status */}
               <div className="rounded-2xl bg-white p-6 shadow">
 
-                <h2 className="mb-4 text-xl font-bold">
+                <h2 className="mb-5 text-xl font-bold">
                   Hospital Status
                 </h2>
 
                 <div className="space-y-4">
 
                   <div className="flex justify-between">
-
                     <span>Emergency</span>
 
                     <span
@@ -376,11 +468,9 @@ const hospital = hospitals.find(
                     >
                       {hospital.emergency ? "OPEN" : "BUSY"}
                     </span>
-
                   </div>
 
                   <div className="flex justify-between">
-
                     <span>Ambulance</span>
 
                     <span
@@ -394,51 +484,41 @@ const hospital = hospitals.find(
                         ? "AVAILABLE"
                         : "UNAVAILABLE"}
                     </span>
-
                   </div>
 
                   <div className="flex justify-between">
-
                     <span>Available Beds</span>
 
                     <span className="font-semibold text-blue-600">
                       {hospital.beds || 0}
                     </span>
-
                   </div>
 
                   <div className="flex justify-between">
-
                     <span>Oxygen Units</span>
 
                     <span className="font-semibold text-cyan-600">
                       {hospital.oxygen || 0}
                     </span>
-
                   </div>
 
                   <div className="flex justify-between">
-
                     <span>Ventilators</span>
 
                     <span className="font-semibold text-orange-600">
                       {hospital.ventilators || 0}
                     </span>
-
                   </div>
 
                   <div className="flex justify-between">
-
                     <span>Waiting Time</span>
 
                     <span className="font-semibold">
                       {hospital.waitingTime ?? 0} min
                     </span>
-
                   </div>
 
                   <div className="flex justify-between">
-
                     <span>Verified</span>
 
                     <span
@@ -450,7 +530,6 @@ const hospital = hospitals.find(
                     >
                       {hospital.verified ? "YES" : "NO"}
                     </span>
-
                   </div>
 
                 </div>
@@ -467,4 +546,4 @@ const hospital = hospitals.find(
 
     </>
   );
-}              
+}

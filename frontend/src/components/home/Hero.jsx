@@ -63,7 +63,6 @@ const handleCurrentLocation = () => {
     }
   );
 };
-
   return (
     <section className="min-h-[90vh] bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="mx-auto flex min-h-[90vh] max-w-7xl flex-col-reverse items-center gap-16 px-6 py-16 lg:flex-row">
