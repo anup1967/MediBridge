@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
+import reviewRoutes from "./routes/reviewRoutes.js";
 import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/hospitals", express.static("uploads/hospitals"));
-
+app.use("/api/reviews", reviewRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/hospitals", hospitalRoutes);
